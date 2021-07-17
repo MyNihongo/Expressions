@@ -1,4 +1,4 @@
-[![Version](https://img.shields.io/nuget/v/MyNihongo.Expressions?style=plastic)](https://github.com/MyNihongo/Expressions/)  
+[![Version](https://img.shields.io/nuget/v/MyNihongo.Expressions?style=plastic)](https://www.nuget.org/packages/MyNihongo.Expressions/)  
 Utility methods for `System.Linq.Expressions` and objects. The main goal of the package is reducing usage of the reflection code.
 ## PropertyOf
 Access properties of an onject by the property names.
