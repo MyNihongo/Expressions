@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>net40;net5.0</TargetFrameworks>
+		<LangVersion>latest</LangVersion>
+		<Nullable>enable</Nullable>
+		<Authors>MyNihongo</Authors>
+		<Product>MyNihongo</Product>
+		<Description>Utility methods for System.Linq.Expression.Expression</Description>
+		<Copyright>Copyright © 2021 MyNihongo</Copyright>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<Version>0.1.0</Version>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageProjectUrl>https://github.com/MyNihongo/Expressions</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/MyNihongo/Expressions</RepositoryUrl>
+		<PackageIcon>favico.png</PackageIcon>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <None Include="..\favico.png">
+	    <Pack>True</Pack>
+	    <PackagePath />
+	  </None>
+	</ItemGroup>
+
+</Project>

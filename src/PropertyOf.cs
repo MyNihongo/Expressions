@@ -1,0 +1,81 @@
+﻿/*
+* Copyright © 2021 MyNihongo
+*/
+
+using System;
+using System.Linq.Expressions;
+
+namespace MyNihongo.Expressions
+{
+	/// <summary>
+	/// Utility class for getting and settings properties
+	/// </summary>
+	public static class PropertyOf
+	{
+		public static object? Get(object source, string propertyName) =>
+			Get<object?>(source, propertyName);
+
+		public static T? Get<T>(object source, string propertyName)
+		{
+			var type = source.GetType();
+			var key = new Tuple<Type, string>(type, propertyName);
+
+			if (!ExpressionCache.PropertyGetters.TryGetValue(key, out var @delegate))
+			{
+				var param = Expression.Parameter(type);
+				var prop = Expression.Property(param, propertyName);
+
+				@delegate = Expression.Lambda(prop, param).Compile();
+				ExpressionCache.PropertyGetters.TryAdd(key, @delegate);
+			}
+
+			return (T?)@delegate.DynamicInvoke(source);
+		}
+
+		public static void Set<T>(object source, string propertyName, T value)
+		{
+			var type = source.GetType();
+			var key = new Tuple<Type, string>(type, propertyName);
+
+			if (!ExpressionCache.PropertySetters.TryGetValue(key, out var @delegate))
+			{
+				var param = Expression.Parameter(type);
+				var prop = Expression.Property(param, propertyName);
+				var valueParam = Expression.Parameter(typeof(T));
+				var assign = Expression.Assign(prop, valueParam);
+
+				@delegate = Expression.Lambda(assign, param, valueParam).Compile();
+				ExpressionCache.PropertySetters.TryAdd(key, @delegate);
+			}
+
+			@delegate.DynamicInvoke(source, value);
+		}
+	}
+
+	/// <summary>
+	/// Utility class for getting and settings properties
+	/// </summary>
+	public static class PropertyOf<T>
+	{
+		public static TDestination Get<TDestination>(T obj, string propertyName) =>
+			Cache<TDestination>.Get(propertyName)(obj);
+
+		private static class Cache<TDestination>
+		{
+			public static Func<T, TDestination> Get(string propertyName)
+			{
+				var key = new Tuple<Type, string>(typeof(T), propertyName);
+				if (ExpressionCache.PropertyGetters.TryGetValue(key, out var @delegate))
+					return (Func<T, TDestination>)@delegate;
+
+				var param = Expression.Parameter(typeof(T));
+				var prop = Expression.Property(param, propertyName);
+
+				var lambda = Expression.Lambda<Func<T, TDestination>>(prop, param).Compile();
+				ExpressionCache.PropertyGetters.TryAdd(key, lambda);
+
+				return lambda;
+			}
+		}
+	}
+}
