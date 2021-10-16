@@ -17,9 +17,7 @@ namespace MyNihongo.Expressions
 
 		public static T? Get<T>(object source, string propertyName)
 		{
-			var type = source.GetType();
-			var key = new Tuple<Type, string>(type, propertyName);
-
+			var key = new Tuple<Type, string>(source.GetType(), propertyName);
 			var @delegate = ExpressionCache.PropertyGetters2.GetOrAdd(key, static x =>
 			{
 				return new Lazy<Delegate>(() =>
@@ -36,19 +34,19 @@ namespace MyNihongo.Expressions
 
 		public static void Set<T>(object source, string propertyName, T value)
 		{
-			var type = source.GetType();
-			var key = new Tuple<Type, string>(type, propertyName);
-
-			if (!ExpressionCache.PropertySetters.TryGetValue(key, out var @delegate))
+			var key = new Tuple<Type, string>(source.GetType(), propertyName);
+			var @delegate = ExpressionCache.PropertySetters2.GetOrAdd(key, static x =>
 			{
-				var param = Expression.Parameter(type);
-				var prop = Expression.Property(param, propertyName);
-				var valueParam = Expression.Parameter(typeof(T));
-				var assign = Expression.Assign(prop, valueParam);
+				return new Lazy<Delegate>(() =>
+				{
+					var param = Expression.Parameter(x.Item1);
+					var prop = Expression.Property(param, x.Item2);
+					var valueParam = Expression.Parameter(typeof(T));
+					var assign = Expression.Assign(prop, valueParam);
 
-				@delegate = Expression.Lambda(assign, param, valueParam).Compile();
-				ExpressionCache.PropertySetters.TryAdd(key, @delegate);
-			}
+					return Expression.Lambda(assign, param, valueParam).Compile();
+				});
+			}).Value;
 
 			@delegate.DynamicInvoke(source, value);
 		}
