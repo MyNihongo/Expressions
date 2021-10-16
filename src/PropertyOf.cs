@@ -65,16 +65,17 @@ namespace MyNihongo.Expressions
 			public static Func<T, TDestination> Get(string propertyName)
 			{
 				var key = new Tuple<Type, string>(typeof(T), propertyName);
-				if (ExpressionCache.PropertyGetters.TryGetValue(key, out var @delegate))
-					return (Func<T, TDestination>)@delegate;
 
-				var param = Expression.Parameter(typeof(T));
-				var prop = Expression.Property(param, propertyName);
+				return (Func<T, TDestination>)ExpressionCache.PropertyGetters2.GetOrAdd(key, static x =>
+				{
+					return new Lazy<Delegate>(() =>
+					{
+						var param = Expression.Parameter(x.Item1);
+						var prop = Expression.Property(param, x.Item2);
 
-				var lambda = Expression.Lambda<Func<T, TDestination>>(prop, param).Compile();
-				ExpressionCache.PropertyGetters.TryAdd(key, lambda);
-
-				return lambda;
+						return Expression.Lambda<Func<T, TDestination>>(prop, param).Compile();
+					});
+				}).Value;
 			}
 		}
 	}
