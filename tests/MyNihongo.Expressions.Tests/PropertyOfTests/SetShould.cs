@@ -36,7 +36,7 @@ namespace MyNihongo.Expressions.Tests.PropertyOfTests
 			const string prop = nameof(item.Prop);
 			var key = new Tuple<Type, string>(item.GetType(), prop);
 
-			var dictionary = (ConcurrentDictionary<Tuple<Type, string>, Delegate>)typeof(ExpressionCache)
+			var dictionary = (ConcurrentDictionary<Tuple<Type, string>, Lazy<Delegate>>)typeof(ExpressionCache)
 				.GetField(nameof(ExpressionCache.PropertySetters), BindingFlags.Static | BindingFlags.NonPublic)
 				!.GetValue(null);
 
@@ -57,18 +57,6 @@ namespace MyNihongo.Expressions.Tests.PropertyOfTests
 			var input = new TestRecord();
 
 			Action action = () => PropertyOf.Set(input, "NotPresent", "any");
-
-			action
-				.Should()
-				.ThrowExactly<ArgumentException>();
-		}
-
-		[Fact]
-		public void ThrowExceptionIfInvalidType()
-		{
-			var input = new TestRecord();
-
-			Action action = () => PropertyOf.Set(input, nameof(TestRecord.Text), 123);
 
 			action
 				.Should()
