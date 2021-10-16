@@ -18,7 +18,7 @@ namespace MyNihongo.Expressions
 		public static T? Get<T>(object source, string propertyName)
 		{
 			var key = new Tuple<Type, string>(source.GetType(), propertyName);
-			var @delegate = ExpressionCache.PropertyGetters2.GetOrAdd(key, static x =>
+			var @delegate = ExpressionCache.PropertyGetters.GetOrAdd(key, static x =>
 			{
 				return new Lazy<Delegate>(() =>
 				{
@@ -35,7 +35,7 @@ namespace MyNihongo.Expressions
 		public static void Set<T>(object source, string propertyName, T value)
 		{
 			var key = new Tuple<Type, string>(source.GetType(), propertyName);
-			var @delegate = ExpressionCache.PropertySetters2.GetOrAdd(key, static x =>
+			var @delegate = ExpressionCache.PropertySetters.GetOrAdd(key, static x =>
 			{
 				return new Lazy<Delegate>(() =>
 				{
@@ -66,7 +66,7 @@ namespace MyNihongo.Expressions
 			{
 				var key = new Tuple<Type, string>(typeof(T), propertyName);
 
-				return (Func<T, TDestination>)ExpressionCache.PropertyGetters2.GetOrAdd(key, static x =>
+				return (Func<T, TDestination>)ExpressionCache.PropertyGetters.GetOrAdd(key, static x =>
 				{
 					return new Lazy<Delegate>(() =>
 					{

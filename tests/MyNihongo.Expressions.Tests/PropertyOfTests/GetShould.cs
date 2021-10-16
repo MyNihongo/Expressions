@@ -46,7 +46,7 @@ namespace MyNihongo.Expressions.Tests.PropertyOfTests
 			var key = new Tuple<Type, string>(item.GetType(), prop);
 
 			var dictionary = (ConcurrentDictionary<Tuple<Type, string>, Lazy<Delegate>>)typeof(ExpressionCache)
-				.GetField(nameof(ExpressionCache.PropertyGetters2), BindingFlags.Static | BindingFlags.NonPublic)
+				.GetField(nameof(ExpressionCache.PropertyGetters), BindingFlags.Static | BindingFlags.NonPublic)
 				!.GetValue(null);
 
 			dictionary
@@ -72,7 +72,7 @@ namespace MyNihongo.Expressions.Tests.PropertyOfTests
 			var key = new Tuple<Type, string>(item.GetType(), prop);
 
 			var dictionary = (ConcurrentDictionary<Tuple<Type, string>, Lazy<Delegate>>)typeof(ExpressionCache)
-				.GetField(nameof(ExpressionCache.PropertyGetters2), BindingFlags.Static | BindingFlags.NonPublic)
+				.GetField(nameof(ExpressionCache.PropertyGetters), BindingFlags.Static | BindingFlags.NonPublic)
 				!.GetValue(null);
 
 			dictionary
