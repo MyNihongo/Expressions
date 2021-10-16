@@ -34,7 +34,7 @@ namespace MyNihongo.Expressions.Tests.MethodOfTests
 			const string method = nameof(InvokeCacheTest.GetResult);
 			var key = new Tuple<Type, string>(typeof(InvokeCacheTest), method);
 
-			var dictionary = (ConcurrentDictionary<Tuple<Type, string>, Delegate>)typeof(ExpressionCache)
+			var dictionary = (ConcurrentDictionary<Tuple<Type, string>, Lazy<Delegate>>)typeof(ExpressionCache)
 				.GetField(nameof(ExpressionCache.Invoke), BindingFlags.Static | BindingFlags.NonPublic)
 				!.GetValue(null);
 
