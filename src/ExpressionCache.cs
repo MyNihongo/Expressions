@@ -14,6 +14,10 @@ namespace MyNihongo.Expressions
 			PropertyGetters = new(),
 			PropertySetters = new();
 
+		internal static readonly ConcurrentDictionary<Tuple<Type, string>, Lazy<Delegate>>
+			PropertyGetters2 = new(),
+			PropertySetters2 = new();
+
 		internal static readonly ConcurrentDictionary<Tuple<Type, string>, Delegate>
 			Invoke = new();
 	}

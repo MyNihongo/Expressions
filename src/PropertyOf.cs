@@ -20,14 +20,16 @@ namespace MyNihongo.Expressions
 			var type = source.GetType();
 			var key = new Tuple<Type, string>(type, propertyName);
 
-			if (!ExpressionCache.PropertyGetters.TryGetValue(key, out var @delegate))
+			var @delegate = ExpressionCache.PropertyGetters2.GetOrAdd(key, static x =>
 			{
-				var param = Expression.Parameter(type);
-				var prop = Expression.Property(param, propertyName);
+				return new Lazy<Delegate>(() =>
+				{
+					var param = Expression.Parameter(x.Item1);
+					var prop = Expression.Property(param, x.Item2);
 
-				@delegate = Expression.Lambda(prop, param).Compile();
-				ExpressionCache.PropertyGetters.TryAdd(key, @delegate);
-			}
+					return Expression.Lambda(prop, param).Compile();
+				});
+			}).Value;
 
 			return (T?)@delegate.DynamicInvoke(source);
 		}
