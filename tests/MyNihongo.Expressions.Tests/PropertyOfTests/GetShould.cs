@@ -41,7 +41,7 @@ public sealed class GetShould
 
 		var dictionary = (ConcurrentDictionary<Tuple<Type, string>, Lazy<Delegate>>)typeof(ExpressionCache)
 			.GetField(nameof(ExpressionCache.PropertyGetters), BindingFlags.Static | BindingFlags.NonPublic)
-			!.GetValue(null);
+			!.GetValue(null)!;
 
 		dictionary
 			.Should()
@@ -67,7 +67,7 @@ public sealed class GetShould
 
 		var dictionary = (ConcurrentDictionary<Tuple<Type, string>, Lazy<Delegate>>)typeof(ExpressionCache)
 			.GetField(nameof(ExpressionCache.PropertyGetters), BindingFlags.Static | BindingFlags.NonPublic)
-			!.GetValue(null);
+			!.GetValue(null)!;
 
 		dictionary
 			.Should()

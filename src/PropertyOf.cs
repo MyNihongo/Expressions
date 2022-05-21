@@ -32,6 +32,26 @@ namespace MyNihongo.Expressions
 			return (T?)@delegate.DynamicInvoke(source);
 		}
 
+		public static void Set(object source, string propertyName, object? value)
+		{
+			var key = new Tuple<Type, string>(source.GetType(), propertyName);
+			var @delegate = ExpressionCache.PropertySetters.GetOrAdd(key, static x =>
+			{
+				return new Lazy<Delegate>(() =>
+				{
+					var param = Expression.Parameter(x.Item1);
+					var prop = Expression.Property(param, x.Item2);
+					var valueParam = Expression.Parameter(typeof(object));
+					var convertedValueParam = Expression.Convert(valueParam, prop.Type);
+					var assign = Expression.Assign(prop, convertedValueParam);
+
+					return Expression.Lambda(assign, param, valueParam).Compile();
+				});
+			}).Value;
+
+			@delegate.DynamicInvoke(source, value);
+		}
+
 		public static void Set<T>(object source, string propertyName, T value)
 		{
 			var key = new Tuple<Type, string>(source.GetType(), propertyName);

@@ -30,7 +30,7 @@ public sealed class InvokeShould
 
 		var dictionary = (ConcurrentDictionary<Tuple<Type, string>, Lazy<Delegate>>)typeof(ExpressionCache)
 			.GetField(nameof(ExpressionCache.Invoke), BindingFlags.Static | BindingFlags.NonPublic)
-			!.GetValue(null);
+			!.GetValue(null)!;
 
 		dictionary
 			.Should()
