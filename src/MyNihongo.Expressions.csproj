@@ -7,10 +7,10 @@
 		<Authors>MyNihongo</Authors>
 		<Product>MyNihongo</Product>
 		<Description>Utility methods for System.Linq.Expression.Expression</Description>
-		<Copyright>Copyright © 2021 MyNihongo</Copyright>
+		<Copyright>Copyright © 2022 MyNihongo</Copyright>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<Version>0.2.0</Version>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<GeneratePackageOnBuild Condition="'$(Configuration)'=='Release'">true</GeneratePackageOnBuild>
 		<PackageProjectUrl>https://github.com/MyNihongo/Expressions</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/MyNihongo/Expressions</RepositoryUrl>
 		<PackageIcon>favico.png</PackageIcon>
