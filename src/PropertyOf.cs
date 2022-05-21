@@ -34,6 +34,9 @@ namespace MyNihongo.Expressions
 
 		public static void Set(object source, string propertyName, object? value)
 		{
+			if (string.IsNullOrEmpty(propertyName))
+				return;
+
 			var key = new Tuple<Type, string>(source.GetType(), propertyName);
 			var @delegate = ExpressionCache.PropertySetters.GetOrAdd(key, static x =>
 			{
@@ -54,6 +57,9 @@ namespace MyNihongo.Expressions
 
 		public static void Set<T>(object source, string propertyName, T value)
 		{
+			if (string.IsNullOrEmpty(propertyName))
+				return;
+
 			var key = new Tuple<Type, string>(source.GetType(), propertyName);
 			var @delegate = ExpressionCache.PropertySetters.GetOrAdd(key, static x =>
 			{
