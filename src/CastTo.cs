@@ -1,31 +1,23 @@
-﻿/*
-* Copyright © 2021 MyNihongo
-*/
+﻿namespace MyNihongo.Expressions;
 
-using System;
-using System.Linq.Expressions;
-
-namespace MyNihongo.Expressions
+/// <summary>
+/// Utility class for casting
+/// </summary>
+public static class CastTo<T>
 {
-	/// <summary>
-	/// Utility class for casting
-	/// </summary>
-	public static class CastTo<T>
+	public static T From<TSource>(TSource from) =>
+		Cache<TSource>.Caster(from);
+
+	private static class Cache<TSource>
 	{
-		public static T From<TSource>(TSource from) =>
-			Cache<TSource>.Caster(from);
+		public static readonly Func<TSource, T> Caster = GetFunc();
 
-		private static class Cache<TSource>
+		private static Func<TSource, T> GetFunc()
 		{
-			public static readonly Func<TSource, T> Caster = GetFunc();
+			var parameter = Expression.Parameter(typeof(TSource));
+			var check = Expression.ConvertChecked(parameter, typeof(T));
 
-			private static Func<TSource, T> GetFunc()
-			{
-				var parameter = Expression.Parameter(typeof(TSource));
-				var check = Expression.ConvertChecked(parameter, typeof(T));
-
-				return Expression.Lambda<Func<TSource, T>>(check, parameter).Compile();
-			}
+			return Expression.Lambda<Func<TSource, T>>(check, parameter).Compile();
 		}
 	}
 }

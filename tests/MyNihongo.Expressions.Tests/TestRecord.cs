@@ -1,15 +1,14 @@
-﻿namespace MyNihongo.Expressions.Tests
+﻿namespace MyNihongo.Expressions.Tests;
+
+public abstract record TestRecordBase;
+
+public sealed record TestRecord : TestRecordBase
 {
-	public abstract record TestRecordBase;
+	public string Text { get; set; } = string.Empty;
 
-	public sealed record TestRecord : TestRecordBase
-	{
-		public string Text { get; set; } = string.Empty;
+	public int GetResult() =>
+		123;
 
-		public int GetResult() =>
-			123;
-
-		public int GetAnotherResult(int param) =>
-			123 + param;
-	}
+	public int GetAnotherResult(int param) =>
+		123 + param;
 }

@@ -1,66 +1,114 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Reflection;
-using FluentAssertions;
-using Xunit;
+﻿namespace MyNihongo.Expressions.Tests.PropertyOfTests;
 
-namespace MyNihongo.Expressions.Tests.PropertyOfTests
+public sealed class SetShould
 {
-	public sealed class SetShould
+	[Fact]
+	public void SetProperty()
 	{
-		[Fact]
-		public void SetProperty()
+		const string text = nameof(text);
+		var input = new TestRecord();
+
+		input.Text
+			.Should()
+			.BeEmpty();
+
+		PropertyOf.Set(input, nameof(TestRecord.Text), text);
+
+		input.Text
+			.Should()
+			.Be(text);
+	}
+
+	[Fact]
+	public void SaveExpressionsInCache()
+	{
+		var item = new SetCacheTest
 		{
-			const string text = nameof(text);
-			var input = new TestRecord();
+			Prop = "text123"
+		};
 
-			input.Text
-				.Should()
-				.BeEmpty();
+		const string prop = nameof(item.Prop);
+		var key = new Tuple<Type, string>(item.GetType(), prop);
 
-			PropertyOf.Set(input, nameof(TestRecord.Text), text);
+		var dictionary = (ConcurrentDictionary<Tuple<Type, string>, Lazy<Delegate>>)typeof(ExpressionCache)
+			.GetField(nameof(ExpressionCache.PropertySetters), BindingFlags.Static | BindingFlags.NonPublic)
+			!.GetValue(null)!;
 
-			input.Text
-				.Should()
-				.Be(text);
-		}
+		dictionary
+			.Should()
+			.NotContainKey(key);
 
-		[Fact]
-		public void SaveExpressionsInCache()
+		PropertyOf.Set(item, prop, "another text");
+
+		dictionary
+			.Should()
+			.ContainKey(key);
+	}
+
+	[Fact]
+	public void ThrowExceptionIfPropertyNotFound()
+	{
+		var input = new TestRecord();
+
+		var action = () => PropertyOf.Set(input, "NotPresent", "any");
+
+		action
+			.Should()
+			.ThrowExactly<ArgumentException>();
+	}
+
+	[Fact]
+	public void SetPropertyFromObject()
+	{
+		object newText = "new text as obj";
+		var input = new TestRecord();
+
+		input.Text
+			.Should()
+			.BeEmpty();
+
+		PropertyOf.Set(input, nameof(TestRecord.Text), newText);
+
+		input.Text
+			.Should()
+			.Be((string)newText);
+	}
+
+	[Fact]
+	public void SaveExpressionsInCacheFromObject()
+	{
+		var item = new SetCacheTest
 		{
-			var item = new SetCacheTest
-			{
-				Prop = "text123"
-			};
+			Prop2 = 123
+		};
 
-			const string prop = nameof(item.Prop);
-			var key = new Tuple<Type, string>(item.GetType(), prop);
+		const string prop = nameof(item.Prop2);
+		var key = new Tuple<Type, string>(item.GetType(), prop);
 
-			var dictionary = (ConcurrentDictionary<Tuple<Type, string>, Lazy<Delegate>>)typeof(ExpressionCache)
-				.GetField(nameof(ExpressionCache.PropertySetters), BindingFlags.Static | BindingFlags.NonPublic)
-				!.GetValue(null);
+		var dictionary = (ConcurrentDictionary<Tuple<Type, string>, Lazy<Delegate>>)typeof(ExpressionCache)
+			.GetField(nameof(ExpressionCache.PropertySetters), BindingFlags.Static | BindingFlags.NonPublic)
+			!.GetValue(null)!;
 
-			dictionary
-				.Should()
-				.NotContainKey(key);
+		dictionary
+			.Should()
+			.NotContainKey(key);
 
-			PropertyOf.Set(item, prop, "another text");
+		PropertyOf.Set(item, prop, null);
 
-			dictionary
-				.Should()
-				.ContainKey(key);
-		}
+		dictionary
+			.Should()
+			.ContainKey(key);
+	}
 
-		[Fact]
-		public void ThrowExceptionIfPropertyNotFound()
-		{
-			var input = new TestRecord();
+	[Fact]
+	public void ThrowExceptionIfPropertyNotFoundFromObject()
+	{
+		var input = new TestRecord();
 
-			Action action = () => PropertyOf.Set(input, "NotPresent", "any");
+		var action = () => PropertyOf.Set(input, "NotPresent", null);
 
-			action
-				.Should()
-				.ThrowExactly<ArgumentException>();
-		}
+		action
+			.Should()
+			.ThrowExactly<ArgumentException>();
 	}
 }
