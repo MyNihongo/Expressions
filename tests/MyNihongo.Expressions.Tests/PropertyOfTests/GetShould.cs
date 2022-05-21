@@ -1,137 +1,130 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Reflection;
-using FluentAssertions;
-using Xunit;
+﻿namespace MyNihongo.Expressions.Tests.PropertyOfTests;
 
-namespace MyNihongo.Expressions.Tests.PropertyOfTests
+public sealed class GetShould
 {
-	public sealed class GetShould
+	[Fact]
+	public void GetPropertyValueNonGeneric()
 	{
-		[Fact]
-		public void GetPropertyValueNonGeneric()
+		const string text = nameof(text);
+		var input = new TestRecord { Text = text };
+
+		var result = PropertyOf.Get<string>(input, nameof(TestRecord.Text));
+
+		result
+			.Should()
+			.Be(text);
+	}
+
+	[Fact]
+	public void GetPropertyValueGeneric()
+	{
+		const string text = nameof(text);
+		var input = new TestRecord { Text = text };
+
+		var result = PropertyOf<TestRecord>.Get<string>(input, nameof(TestRecord.Text));
+
+		result
+			.Should()
+			.Be(text);
+	}
+
+	[Fact]
+	public void SaveExpressionsInCacheFromNonGeneric()
+	{
+		var item = new GetCacheTest1
 		{
-			const string text = nameof(text);
-			var input = new TestRecord { Text = text };
+			Prop = "text123"
+		};
 
-			var result = PropertyOf.Get<string>(input, nameof(TestRecord.Text));
+		const string prop = nameof(item.Prop);
+		var key = new Tuple<Type, string>(item.GetType(), prop);
 
-			result
-				.Should()
-				.Be(text);
-		}
+		var dictionary = (ConcurrentDictionary<Tuple<Type, string>, Lazy<Delegate>>)typeof(ExpressionCache)
+			.GetField(nameof(ExpressionCache.PropertyGetters), BindingFlags.Static | BindingFlags.NonPublic)
+			!.GetValue(null);
 
-		[Fact]
-		public void GetPropertyValueGeneric()
+		dictionary
+			.Should()
+			.NotContainKey(key);
+
+		PropertyOf.Get(item, prop);
+
+		dictionary
+			.Should()
+			.ContainKey(key);
+	}
+
+	[Fact]
+	public void SaveExpressionsInCacheFromGeneric()
+	{
+		var item = new GetCacheTest2
 		{
-			const string text = nameof(text);
-			var input = new TestRecord { Text = text };
+			Prop = "text123"
+		};
 
-			var result = PropertyOf<TestRecord>.Get<string>(input, nameof(TestRecord.Text));
+		const string prop = nameof(item.Prop);
+		var key = new Tuple<Type, string>(item.GetType(), prop);
 
-			result
-				.Should()
-				.Be(text);
-		}
+		var dictionary = (ConcurrentDictionary<Tuple<Type, string>, Lazy<Delegate>>)typeof(ExpressionCache)
+			.GetField(nameof(ExpressionCache.PropertyGetters), BindingFlags.Static | BindingFlags.NonPublic)
+			!.GetValue(null);
 
-		[Fact]
-		public void SaveExpressionsInCacheFromNonGeneric()
-		{
-			var item = new GetCacheTest1
-			{
-				Prop = "text123"
-			};
+		dictionary
+			.Should()
+			.NotContainKey(key);
 
-			const string prop = nameof(item.Prop);
-			var key = new Tuple<Type, string>(item.GetType(), prop);
+		PropertyOf<GetCacheTest2>.Get<string>(item, prop);
 
-			var dictionary = (ConcurrentDictionary<Tuple<Type, string>, Lazy<Delegate>>)typeof(ExpressionCache)
-				.GetField(nameof(ExpressionCache.PropertyGetters), BindingFlags.Static | BindingFlags.NonPublic)
-				!.GetValue(null);
+		dictionary
+			.Should()
+			.ContainKey(key);
+	}
 
-			dictionary
-				.Should()
-				.NotContainKey(key);
+	[Fact]
+	public void ThrowExceptionIfPropertyNotFoundNonGeneric()
+	{
+		var input = new TestRecord();
 
-			PropertyOf.Get(item, prop);
+		Action action = () => PropertyOf.Get(input, "NotPresent");
 
-			dictionary
-				.Should()
-				.ContainKey(key);
-		}
+		action
+			.Should()
+			.ThrowExactly<ArgumentException>();
+	}
 
-		[Fact]
-		public void SaveExpressionsInCacheFromGeneric()
-		{
-			var item = new GetCacheTest2
-			{
-				Prop = "text123"
-			};
+	[Fact]
+	public void ThrowExceptionIfPropertyNotFoundGeneric()
+	{
+		var input = new TestRecord();
 
-			const string prop = nameof(item.Prop);
-			var key = new Tuple<Type, string>(item.GetType(), prop);
+		Action action = () => PropertyOf<TestRecord>.Get<string>(input, "NotPresent");
 
-			var dictionary = (ConcurrentDictionary<Tuple<Type, string>, Lazy<Delegate>>)typeof(ExpressionCache)
-				.GetField(nameof(ExpressionCache.PropertyGetters), BindingFlags.Static | BindingFlags.NonPublic)
-				!.GetValue(null);
+		action
+			.Should()
+			.ThrowExactly<ArgumentException>();
+	}
 
-			dictionary
-				.Should()
-				.NotContainKey(key);
+	[Fact]
+	public void ThrowExceptionIfInvalidTypeNonGeneric()
+	{
+		var input = new TestRecord();
 
-			PropertyOf<GetCacheTest2>.Get<string>(item, prop);
+		Action action = () => PropertyOf.Get<int>(input, nameof(TestRecord.Text));
 
-			dictionary
-				.Should()
-				.ContainKey(key);
-		}
+		action
+			.Should()
+			.ThrowExactly<InvalidCastException>();
+	}
 
-		[Fact]
-		public void ThrowExceptionIfPropertyNotFoundNonGeneric()
-		{
-			var input = new TestRecord();
+	[Fact]
+	public void ThrowExceptionIfInvalidTypeGeneric()
+	{
+		var input = new TestRecord();
 
-			Action action = () => PropertyOf.Get(input, "NotPresent");
+		Action action = () => PropertyOf<TestRecord>.Get<int>(input, nameof(TestRecord.Text));
 
-			action
-				.Should()
-				.ThrowExactly<ArgumentException>();
-		}
-
-		[Fact]
-		public void ThrowExceptionIfPropertyNotFoundGeneric()
-		{
-			var input = new TestRecord();
-
-			Action action = () => PropertyOf<TestRecord>.Get<string>(input, "NotPresent");
-
-			action
-				.Should()
-				.ThrowExactly<ArgumentException>();
-		}
-
-		[Fact]
-		public void ThrowExceptionIfInvalidTypeNonGeneric()
-		{
-			var input = new TestRecord();
-
-			Action action = () => PropertyOf.Get<int>(input, nameof(TestRecord.Text));
-
-			action
-				.Should()
-				.ThrowExactly<InvalidCastException>();
-		}
-
-		[Fact]
-		public void ThrowExceptionIfInvalidTypeGeneric()
-		{
-			var input = new TestRecord();
-
-			Action action = () => PropertyOf<TestRecord>.Get<int>(input, nameof(TestRecord.Text));
-
-			action
-				.Should()
-				.ThrowExactly<InvalidCastException>();
-		}
+		action
+			.Should()
+			.ThrowExactly<InvalidCastException>();
 	}
 }

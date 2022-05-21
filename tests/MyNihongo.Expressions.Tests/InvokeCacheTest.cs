@@ -1,10 +1,7 @@
-﻿using System;
+﻿namespace MyNihongo.Expressions.Tests;
 
-namespace MyNihongo.Expressions.Tests
+public sealed class InvokeCacheTest
 {
-	public sealed class InvokeCacheTest
-	{
-		public DateTime GetResult() =>
-			new(2021, 7, 16);
-	}
+	public DateTime GetResult() =>
+		new(2021, 7, 16);
 }
